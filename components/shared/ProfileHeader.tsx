@@ -8,6 +8,7 @@ interface Props {
     username: string
     bio: string
     imgUrl: string 
+    type?: 'User' | 'Community'
 }
 
 function ProfileHeader({

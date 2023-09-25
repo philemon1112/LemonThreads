@@ -1,64 +1,56 @@
-"use client"
-import React, { ChangeEvent, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import * as z from "zod"
-import { zodResolver } from '@hookform/resolvers/zod';
-import { UserValidation } from '@/lib/validations/user';
-import { Button } from "@/components/ui/button"
+"use client";
+
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { useOrganization } from "@clerk/nextjs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { usePathname, useRouter } from "next/navigation";
+
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-// import { updateUser } from '@/lib/actions/user.actions';
-import { usePathname, useRouter } from 'next/navigation';
-import { ThreadValidation } from '@/lib/validations/thread';
-import { createThread } from '@/lib/actions/thread.actions';
+} from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
-interface Props{
-    user: {
-        id: string;
-        objectId: string; 
-        username: string;
-        name: string;
-        bio: string;
-        image: string;
-    };
-    btnTitle: string; 
+import { ThreadValidation } from "@/lib/validations/thread";
+import { createThread } from "@/lib/actions/thread.actions";
+
+interface Props {
+  userId: string;
 }
 
+function PostThread({ userId }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
 
-function PostThread({userId}:{userId: string}) {
-    const router = useRouter();
-    const pathname = usePathname();
+  const { organization } = useOrganization();
 
-    const form = useForm(
-        {
-            resolver: zodResolver(ThreadValidation),
-            defaultValues: {
-               thread: '',
-               accountId: userId
-            }
-        }
-    )
+  const form = useForm<z.infer<typeof ThreadValidation>>({
+    resolver: zodResolver(ThreadValidation),
+    defaultValues: {
+      thread: "",
+      accountId: userId,
+    },
+  });
 
-    const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
-        await createThread({
-            text: values.thread,
-            author: userId,
-            communityId: null,
-            path: pathname,
-        });
+  const onSubmit = async (values: z.infer<typeof ThreadValidation>) => {
+    await createThread({
+      text: values.thread,
+      author: userId,
+      communityId: organization ? organization.id : null,
+      path: pathname,
+    });
 
-        router.push('/')
-    }
+    
+    router.push("/");
+  };
 
+  console.log(organization?.id)
   return (
     <Form {...form}>
       <form
@@ -74,7 +66,7 @@ function PostThread({userId}:{userId: string}) {
                 Content
               </FormLabel>
               <FormControl className='no-focus border border-dark-4 bg-dark-3 text-light-1'>
-                <Textarea rows={8} {...field} />
+                <Textarea rows={15} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -86,7 +78,7 @@ function PostThread({userId}:{userId: string}) {
         </Button>
       </form>
     </Form>
-  )
+  );
 }
 
-export default PostThread
+export default PostThread;
