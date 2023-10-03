@@ -4,7 +4,7 @@ import '../globals.css';
 
 export const metadata = {
     title: 'Threads',
-    description: "Nextjs 13 SEO reasons threads"
+    description: "Lemon Threads | nextjs 13"
 }
 
 const inter = Inter({subsets: ["latin"]})
